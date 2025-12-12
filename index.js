@@ -1,55 +1,45 @@
-// index.js
+// Main WebSocket Server with Namespace Support
 
 const WebSocket = require('ws');
+const url = require('url');
+const LiveScoringHandler = require('./server/namespaces/liveScoring');
+const PoolingHandler = require('./server/namespaces/pooling');
 
-// Inisialisasi Server WebSocket
-// Server akan berjalan pada port 8080
+// Initialize WebSocket Server on port 8080
 const wss = new WebSocket.Server({ port: 8080 });
 
-console.log('Server WebSocket berjalan pada ws://localhost:8080');
-console.log('Menunggu koneksi klien...');
+// Initialize namespace handlers
+const namespaces = {
+    '/live-scoring': new LiveScoringHandler(),
+    '/pooling': new PoolingHandler()
+};
 
-// 1. Event: 'connection'
-// Dipicu setiap kali klien baru berhasil terhubung ke server.
-wss.on('connection', function connection(ws) {
-    // console.log('Klien baru terhubung!');
+console.log('======================================');
+console.log('WebSocket Server running on ws://localhost:8080');
+console.log('Available namespaces:');
+console.log('  - ws://localhost:8080/live-scoring');
+console.log('  - ws://localhost:8080/pooling');
+console.log('======================================\n');
+
+// Handle incoming connections
+wss.on('connection', (ws, req) => {
+    const pathname = url.parse(req.url).pathname;
     
-    // Kirim pesan selamat datang segera setelah koneksi
-    ws.send('Selamat datang di Server WebSocket Sederhana!');
-
-    // 2. Event: 'message'
-    // Dipicu ketika server menerima pesan dari klien yang terhubung.
-    ws.on('message', function incoming(message) {
-        // Karena data dari klien biasanya berupa Buffer, kita konversi ke String
-        const messageString = message.toString();
-        
-        console.log(`Pesan diterima dari klien: ${messageString}`);
-        
-        // Contoh Balasan Otomatis:
-        const response = `Anda mengirim: "${messageString}". Terima kasih!`;
-        ws.send(response); // Mengirim balasan hanya ke klien yang mengirim pesan
-        
-        // --- Contoh Broadcasting (Kirim ke Semua Klien) ---
-        // Jika Anda ingin mengirim pesan ke semua klien yang terhubung:
-        /*
-        //    wss.clients.forEach(function each(client) {
-        //        // Pastikan klien dalam keadaan OPEN sebelum mengirim
-        //        if (client.readyState === WebSocket.OPEN) {
-        //            client.send(`Pesan BARU dari klien: ${messageString}`);
-        //        }
-        //    });
-        */
-    });
-
-    // 3. Event: 'close'
-    // Dipicu ketika klien memutuskan koneksi.
-    ws.on('close', function close() {
-        console.log('Klien terputus.');
-    });
-
-    // 4. Event: 'error'
-    // Dipicu jika terjadi error pada koneksi.
-    ws.on('error', function error(err) {
-        console.error('Terjadi error:', err);
-    });
+    console.log(`New connection attempt to: ${pathname}`);
+    
+    // Route to appropriate namespace handler
+    const handler = namespaces[pathname];
+    
+    if (handler) {
+        handler.handleConnection(ws);
+    } else {
+        console.log(`Unknown namespace: ${pathname}. Connection rejected.`);
+        ws.close(1008, `Unknown namespace: ${pathname}`);
+    }
 });
+
+wss.on('error', (error) => {
+    console.error('Server error:', error);
+});
+
+console.log('Server ready and waiting for connections...\n');

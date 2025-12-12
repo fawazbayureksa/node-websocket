@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>WebSocket Client Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h2 {
+            color: #333;
+            text-align: center;
+        }
+        .input-group {
+            display: flex;
+            margin-bottom: 20px;
+        }
+        #messageInput {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        #messages {
+            list-style-type: none;
+            padding: 0;
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #ccc;
+            background-color: #fafafa;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        .server {
+            color: blue;
+        }
+        .client {
+            color: green;
+        }
+        .error {
+            color: red;
+        }
+        .info {
+            color: black;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Tes Koneksi</h2>
+        <div class="input-group">
+            <input type="text" id="messageInput" placeholder="Ketik pesan...">
+            <button onclick="sendMessage()">Kirim</button>
+        </div>
+        
+        <h4>Log Pesan:</h4>
+        <ul id="messages"></ul>
+    </div>
+
+    <script>
+        // Gunakan wss:// jika server Anda menggunakan HTTPS (port 443), tapi di sini kita pakai ws://
+        const socket = new WebSocket('ws://localhost:8080');
+        const messagesList = document.getElementById('messages');
+        const input = document.getElementById('messageInput');
+
+        // Request notification permission
+        if ('Notification' in window) {
+            Notification.requestPermission();
+        }
+
+        // 1. Koneksi Berhasil
+        socket.onopen = function(e) {
+            logMessage('Koneksi berhasil dibuka!');
+            if (Notification.permission === 'granted') {
+                new Notification('WebSocket Connected', { body: 'Connection to server established' });
+            }
+        };
+
+        // 2. Menerima Pesan dari Server
+        socket.onmessage = function(event) {
+            logMessage(`[Server]: ${event.data}`, 'server');
+            if (Notification.permission === 'granted') {
+                new Notification('WebSocket Message', { body: event.data });
+            }
+        };
+
+        // 3. Koneksi Terputus
+        socket.onclose = function(event) {
+            if (event.wasClean) {
+                logMessage(`Koneksi ditutup dengan bersih, code=${event.code} reason=${event.reason}`);
+            } else {
+                // misalnya, proses mati atau jaringan terputus
+                logMessage('Koneksi terputus tiba-tiba.');
+            }
+        };
+
+        // 4. Error
+        socket.onerror = function(error) {
+            logMessage(`Error: ${error.message}`, 'error');
+        };
+
+        // Fungsi untuk mengirim pesan
+        function sendMessage() {
+            const message = input.value;
+            if (socket.readyState === WebSocket.OPEN) {
+                socket.send(message);
+                logMessage(`[Anda]: ${message}`, 'client');
+                input.value = '';
+            } else {
+                 logMessage('Koneksi belum siap atau sudah terputus.', 'error');
+            }
+        }
+
+        // Fungsi bantu untuk menampilkan pesan di UI
+        function logMessage(text, type = 'info') {
+            const li = document.createElement('li');
+            li.textContent = text;
+            li.classList.add(type);
+            messagesList.appendChild(li);
+        }
+
+    </script>
+</body>
+</html>
