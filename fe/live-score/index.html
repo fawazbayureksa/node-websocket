@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Score</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        h1 {
+            color: #333;
+        }
+        p {
+            font-size: 16px;
+        }
+        .container {
+            margin-top: 20px;
+            margin-left: 100px;
+        }
+        .flex {
+            display: flex;
+            gap: 30px;
+        }
+        .align-center {
+            text-align: center;
+            justify-content: center;
+        }
+    </style>
+</head>
+<body>
+
+    
+    <div class="container">
+        <h1>Live Score Page</h1>
+        <p>This is the live score page.</p>
+
+        <div class="flex align-center">
+            <div class="align-center"> 
+                <h3>Team A</h3>
+                <h1 id="scoreA">0</h1>
+            </div>
+            <div class="align-center">
+                <h3>Team B</h3>
+                <h1 id="scoreB">0</h1>
+            </div>
+        </div>
+    </div>
+</body>
+<script>
+    console.log('Live Score Page Loaded');
+    let webSocket = new WebSocket('ws://localhost:8080/live-scoring');
+    webSocket.onmessage = function(event) {
+        const data = JSON.parse(event.data);
+        console.log('WebSocket message received:', data);
+        // console.log('Received data:', data.payload);
+        if(data.action === "sync_scores"){
+            document.getElementById('scoreA').innerText = data.payload.A;
+            document.getElementById('scoreB').innerText = data.payload.B;
+        }
+        if(data.action === 'update_score'){
+            if(data.payload.team === 'B')
+                document.getElementById('scoreB').innerText = data.payload.score;
+            else{
+                document.getElementById('scoreA').innerText = data.payload.score;
+            }
+        }
+    };
+</script>
+</html>
