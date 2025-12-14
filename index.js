@@ -4,6 +4,7 @@ const WebSocket = require('ws');
 const url = require('url');
 const LiveScoringHandler = require('./server/namespaces/liveScoring');
 const PoolingHandler = require('./server/namespaces/pooling');
+const ChatHandler = require('./server/namespaces/chat');
 
 // Initialize WebSocket Server on port 8080
 const wss = new WebSocket.Server({ port: 8080 });
@@ -11,7 +12,8 @@ const wss = new WebSocket.Server({ port: 8080 });
 // Initialize namespace handlers
 const namespaces = {
     '/live-scoring': new LiveScoringHandler(),
-    '/pooling': new PoolingHandler()
+    '/pooling': new PoolingHandler(),
+    '/chat': new ChatHandler()
 };
 
 console.log('======================================');
@@ -19,6 +21,7 @@ console.log('WebSocket Server running on ws://localhost:8080');
 console.log('Available namespaces:');
 console.log('  - ws://localhost:8080/live-scoring');
 console.log('  - ws://localhost:8080/pooling');
+console.log('  - ws://localhost:8080/chat');
 console.log('======================================\n');
 
 // Handle incoming connections

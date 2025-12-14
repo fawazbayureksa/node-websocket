@@ -5,6 +5,7 @@ A clean and efficient WebSocket server supporting multiple namespaces for differ
 ## Features
 
 - **Namespace-based Architecture**: Clean separation of different projects
+- **Chat Room**: Real-time messaging with typing indicators and online user list
 - **Live Scoring**: Real-time score tracking for Team A vs Team B
 - **Polling System**: Create, vote, and manage live polls
 - **Auto-reconnection**: Clients automatically reconnect on disconnection
@@ -18,8 +19,12 @@ setup-project/
 ├── package.json
 ├── server/
 │   └── namespaces/
+│       ├── chat.js            # Chat handler
 │       ├── liveScoring.js     # Live scoring handler
 │       └── pooling.js         # Polling handler
+├── chat/
+│   ├── index.html             # Chat UI
+│   └── app.js                 # Chat client
 ├── live-scoring/
 │   ├── index.html             # Live scoring UI
 │   └── app.js                 # Live scoring client
@@ -39,7 +44,8 @@ npm install
 ### Running the Server
 
 ```bash
-npm start
+npm startchat`
+- `ws://localhost:8080/
 ```
 
 The server will run on `ws://localhost:8080` with the following namespaces:
@@ -48,10 +54,39 @@ The server will run on `ws://localhost:8080` with the following namespaces:
 
 ### Accessing the Applications
 
-1. **Live Scoring**: Open `live-scoring/index.html` in your browser
-2. **Polling System**: Open `pooling/index.html` in your browser
+1. **Main Page**: Open `index.html` in your browser for navigation
+2. **Chat Room**: Open `chat/index.html` in your browser
+3. **Live Scoring**: Open `live-scoring/index.html` in your browser
+4. **Polling System**: Open `pooling/index.html` in your browser
 
 ## Namespaces
+
+### Chat (`/chat`)
+
+Real-time chat room with multiple users.
+
+**Features:**
+- Send and receive messages in real-time
+- Custom usernames
+- Online user list
+- Typing indicators
+- Message history
+- System notifications (user joined/left)
+
+**Client Actions:**
+- `send_message` - Send a chat message
+- `set_username` - Change your username
+- `typing` - Send typing indicator
+- `get_users` - Request online users list
+
+**Server Events:**
+- `connected` - Initial connection with user data and message history
+- `new_message` - New message broadcast
+- `user_joined` - User joined the chat
+- `user_left` - User left the chat
+- `username_changed` - Username updated
+- `user_list` - Online users list
+- `user_typing` - Typing indicator
 
 ### Live Scoring (`/live-scoring`)
 

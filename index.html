@@ -20,6 +20,28 @@
             color: #333;
             text-align: center;
         }
+        .nav-links {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 8px;
+        }
+        .nav-links a {
+            display: inline-block;
+            padding: 12px 25px;
+            margin: 5px;
+            background: white;
+            color: #667eea;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .nav-links a:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
         .input-group {
             display: flex;
             margin-bottom: 20px;
@@ -68,7 +90,15 @@
 </head>
 <body>
     <div class="container">
-        <h2>Tes Koneksi</h2>
+        <h2>WebSocket Demo Projects</h2>
+        
+        <div class="nav-links">
+            <a href="/chat/index.html">💬 Chat Room</a>
+            <a href="/live-scoring/index.html">⚽ Live Scoring</a>
+            <a href="/pooling/index.html">📊 Polling</a>
+        </div>
+
+        <h2>Connection Test</h2>
         <div class="input-group">
             <input type="text" id="messageInput" placeholder="Ketik pesan...">
             <button onclick="sendMessage()">Kirim</button>
